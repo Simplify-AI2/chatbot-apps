@@ -8,6 +8,7 @@ import {iconProps} from "../svg";
 import {useTranslation} from "react-i18next";
 import "./Button.css";
 import Tooltip from './Tooltip';
+import {FeatureService} from '../service/FeatureService';
 
 interface TextToSpeechButtonProps {
   content: string;
@@ -31,8 +32,14 @@ const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({content}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
   const [lastIdentifier, setLastIdentifier] = useState('');
+  const [isTTSEnabled, setIsTTSEnabled] = useState(false);
   const audioRef = useRef(new Audio());
   const {userSettings} = useContext(UserContext);
+
+  // Check if TTS feature is enabled
+  useEffect(() => {
+    FeatureService.isTTSEnabled().then(setIsTTSEnabled);
+  }, []);
 
   const speechSettings: SpeechSettings = {
     id: userSettings.speechModel || 'tts-1',
@@ -86,6 +93,11 @@ const TextToSpeechButton: React.FC<TextToSpeechButtonProps> = ({content}) => {
   useEffect(() => {
     audioRef.current.onended = () => setIsPlaying(false);
   }, []);
+
+  // Don't render if TTS is disabled
+  if (!isTTSEnabled) {
+    return null;
+  }
 
   return (
       <button onClick={handleClick} disabled={isLoading}

@@ -112,6 +112,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Feature flags endpoint
+app.get('/api/features', (req, res) => {
+  res.json({
+    tts: process.env.ENABLE_TTS === 'true',
+    stt: process.env.ENABLE_STT === 'true'
+  });
+});
+
 // OpenAI Chat Completions Proxy
 app.post('/api/chat', authenticateSupabase, rateLimit, async (req, res) => {
   try {
@@ -219,6 +227,11 @@ app.get('/api/models', authenticateSupabase, rateLimit, async (req, res) => {
 // Text-to-Speech endpoint
 app.post('/api/tts', authenticateSupabase, rateLimit, async (req, res) => {
   try {
+    // Check if TTS feature is enabled
+    if (process.env.ENABLE_TTS !== 'true') {
+      return res.status(403).json({ error: 'Text-to-Speech feature is disabled' });
+    }
+
     const { text, voice = 'alloy', model = 'tts-1', speed = 1.0 } = req.body;
 
     // Validate request
@@ -264,6 +277,75 @@ app.post('/api/tts', authenticateSupabase, rateLimit, async (req, res) => {
 
   } catch (error) {
     console.error('TTS Server Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Speech-to-Text (Whisper API)
+app.post('/api/stt', authenticateSupabase, rateLimit, async (req, res) => {
+  try {
+    // Check if STT feature is enabled
+    if (process.env.ENABLE_STT !== 'true') {
+      return res.status(403).json({ error: 'Speech-to-Text feature is disabled' });
+    }
+
+    const { audio, model = 'whisper-1', language = 'auto' } = req.body;
+
+    // Validate request
+    if (!audio || typeof audio !== 'string') {
+      return res.status(400).json({ error: 'Audio data is required' });
+    }
+
+    // Check if API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    }
+
+    // Convert base64 audio to buffer
+    let audioBuffer;
+    try {
+      // Remove data URL prefix if present
+      const audioData = audio.replace(/^data:audio\/[^;]+;base64,/, '');
+      audioBuffer = Buffer.from(audioData, 'base64');
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid audio data format' });
+    }
+
+    // Create FormData for multipart/form-data request
+    const FormData = (await import('form-data')).default;
+    const formData = new FormData();
+    formData.append('file', audioBuffer, {
+      filename: 'audio.webm',
+      contentType: 'audio/webm'
+    });
+    formData.append('model', model);
+    if (language !== 'auto') {
+      formData.append('language', language);
+    }
+
+    // Call OpenAI Whisper API
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        ...formData.getHeaders()
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('OpenAI Whisper API Error:', error);
+      return res.status(response.status).json({ 
+        error: error.error?.message || 'Speech-to-text API error' 
+      });
+    }
+
+    const data = await response.json();
+    res.json({ text: data.text });
+
+  } catch (error) {
+    console.error('STT Server Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

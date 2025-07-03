@@ -48,6 +48,37 @@ npm run docker:dev
 | `npm run docker:build` | Build Docker images |
 | `npm run docker:up` | Run existing Docker images |
 
+## 🏁 Feature Flags
+
+You can enable/disable features using environment variables:
+
+### Backend (.env and backend/.env)
+```bash
+# Enable/disable Text-to-Speech (TTS)
+ENABLE_TTS=true
+
+# Enable/disable Speech-to-Text (STT)  
+ENABLE_STT=true
+```
+
+### Frontend (.env - for build-time)
+```bash
+# Frontend feature flags (optional, synced from backend at runtime)
+VITE_ENABLE_TTS=true
+VITE_ENABLE_STT=true
+```
+
+### Feature Management
+- **TTS Disabled**: Speaker buttons won't appear in chat messages
+- **STT Disabled**: Microphone button won't appear in message input
+- **Runtime Check**: Features are checked dynamically from backend
+- **Graceful Fallback**: Components hide automatically when disabled
+
+### API Endpoints
+- `GET /api/features` - Get current feature flag status
+- `POST /api/tts` - Text-to-Speech (requires `ENABLE_TTS=true`)
+- `POST /api/stt` - Speech-to-Text (requires `ENABLE_STT=true`)
+
 * [Node.JS](https://nodejs.dev/en/)
 * [npm](https://www.npmjs.com/)
 * [OpenAI API Account](https://openai.com/blog/openai-api)

@@ -24,6 +24,8 @@ import Tooltip from "./Tooltip";
 import FileDataPreview from './FileDataPreview';
 import {FileDataRef} from '../models/FileData';
 import {preprocessImage} from '../utils/ImageUtils';
+import VoiceRecorderButton from './VoiceRecorderButton';
+import {NotificationService} from '../service/NotificationService';
 
 interface MessageBoxProps {
   callApp: Function;
@@ -92,6 +94,18 @@ const MessageBox =
           insertTextAtCursorPosition(text);
         },
       }));
+
+      // Handle voice transcription
+      const handleVoiceTranscription = (text: string) => {
+        if (text.trim()) {
+          insertTextAtCursorPosition(text);
+        }
+      };
+
+      // Handle voice recording error
+      const handleVoiceError = (error: string) => {
+        NotificationService.handleError(error);
+      };
 
       // Function to handle auto-resizing of the textarea
       const handleAutoResize = useCallback(() => {
@@ -400,6 +414,16 @@ const MessageBox =
                     className="p-1 relative z-10">
                     <PaperClipIcon className="h-6 w-6"/>
                   </button>
+                </div>
+
+                {/* Voice Recorder Button */}
+                <div className="flex items-center justify-start">
+                  <VoiceRecorderButton
+                    onTranscription={handleVoiceTranscription}
+                    onError={handleVoiceError}
+                    disabled={loading}
+                    className="relative z-10"
+                  />
                 </div>
 
                 {/* Grammarly extension container */}
