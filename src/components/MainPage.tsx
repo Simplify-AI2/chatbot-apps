@@ -633,7 +633,7 @@ const MainPage: React.FC<MainPageProps> = ({className, isSidebarCollapsed, toggl
             loading={loading}
             setLoading={setLoading}
             allowImageAttachment={
-              model === null || model?.image_support || false
+              model === null || model?.image_support === true
                 ? 'yes'
                 : !conversation
                 ? 'warn'

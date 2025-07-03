@@ -40,7 +40,7 @@ export class SpeechService {
     const requestBody = {
       model: settings.id,
       voice: settings.voice,
-      input: text,
+      text: text,
       speed: settings.speed,
       response_format: "mp3",
     };

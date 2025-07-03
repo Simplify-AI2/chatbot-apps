@@ -177,21 +177,26 @@ const MessageBox =
       };
 
       const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        console.log('🖼️ Paste event triggered, allowImageAttachment:', allowImageAttachment);
 
         if (event.clipboardData && event.clipboardData.items) {
           const items = event.clipboardData.items;
 
           for (const item of items) {
+            console.log('📋 Clipboard item type:', item.type);
             if (item.type.indexOf("image") === 0 && allowImageAttachment !== 'no') {
+              console.log('🖼️ Image detected, processing...');
               event.preventDefault();
               const file = item.getAsFile();
               if (file) {
+                console.log('📁 File:', file.name, file.type, file.size);
                 const reader = new FileReader();
                 reader.onload = (loadEvent) => {
                   if (loadEvent.target !== null) {
                     const base64Data = loadEvent.target.result;
 
                     if (typeof base64Data === 'string') {
+                      console.log('✅ Image processing successful');
                       preprocessImage(file, (base64Data, processedFile) => {
                         setFileDataRef((prevData) => [...prevData, {
                           id: 0,
@@ -204,7 +209,7 @@ const MessageBox =
                         }]);
                       });
                       if (allowImageAttachment == 'warn') {
-                        // todo: could warn user
+                        console.log('⚠️  Image attachment warning mode');
                       }
                     }
                   }
@@ -212,7 +217,7 @@ const MessageBox =
                 reader.readAsDataURL(file);
               }
             } else {
-
+              console.log('❌ Image paste blocked:', item.type, allowImageAttachment);
             }
           }
         }
