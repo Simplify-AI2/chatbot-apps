@@ -26,7 +26,34 @@ That's it! 🎉
 - **Backend**: http://localhost:3001
 - **Health Check**: http://localhost:3001/health
 
-### Option 2: Docker Mode
+### Option 2: Nix Mode
+
+If you use [Nix](https://zero-to-nix.com/start/install/) and [flakes](https://nixos.wiki/wiki/Flakes), you can get a fully reproducible dev environment (Node.js 20, npm, Docker, etc) with:
+
+```bash
+nix develop
+```
+
+This will provide:
+- Node.js 20
+- npm
+- Docker
+- git, curl, openssl, postgresql (optional for Supabase)
+- All tools needed for development
+
+**How to use:**
+1. Make sure you have [Nix with flakes enabled](https://nixos.wiki/wiki/Flakes).
+2. Run:
+   ```bash
+   nix develop
+   ```
+3. You’ll drop into a shell with all dependencies ready.  
+   Now you can run `npm run install:all` and `npm start` as usual.
+
+> The `flake.nix` file is provided in the project root.
+
+
+### Option 3: Docker Mode
 
 ```bash
 # Build and run with Docker
