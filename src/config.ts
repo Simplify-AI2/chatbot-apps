@@ -1,5 +1,8 @@
-import env from './local.env.json';
+// Configuration - API key will be managed by user input
+export const OPENAI_DEFAULT_MODEL: string = import.meta.env.VITE_DEFAULT_MODEL || 'gpt-3.5-turbo';
+export const OPENAI_DEFAULT_SYSTEM_PROMPT: string = import.meta.env.VITE_DEFAULT_SYSTEM_PROMPT || 'You are a helpful assistant.';
 
-export const OPENAI_API_KEY = (env as any).openapi_key;
-export const OPENAI_DEFAULT_MODEL: string = (env as any).default_model;
-export const OPENAI_DEFAULT_SYSTEM_PROMPT: string = (env as any).default_system_prompt;
+// API key will be retrieved from localStorage
+export const getApiKey = (): string => {
+  return localStorage.getItem('openai_api_key') || '';
+};

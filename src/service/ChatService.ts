@@ -1,12 +1,16 @@
 import {modelDetails, OpenAIModel} from "../models/model";
 import {ChatCompletion, ChatCompletionMessage, ChatCompletionRequest, ChatMessage, ChatMessagePart, Role} from "../models/ChatCompletion";
-import {OPENAI_API_KEY} from "../config";
 import {CustomError} from "./CustomError";
-import {CHAT_COMPLETIONS_ENDPOINT, MODELS_ENDPOINT} from "../constants/apiEndpoints";
 import {ChatSettings} from "../models/ChatSettings";
 import {CHAT_STREAM_DEBOUNCE_TIME, DEFAULT_MODEL} from "../constants/appConstants";
 import {NotificationService} from '../service/NotificationService';
 import { FileData, FileDataRef } from "../models/FileData";
+import { getAuthToken } from "../auth";
+
+// Backend API endpoints
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const CHAT_API_ENDPOINT = `${API_BASE_URL}/api/chat`;
+const MODELS_API_ENDPOINT = `${API_BASE_URL}/api/models`;
 
 interface CompletionChunk {
   id: string;
@@ -27,6 +31,20 @@ interface CompletionChunkChoice {
 export class ChatService {
   private static models: Promise<OpenAIModel[]> | null = null;
   static abortController: AbortController | null = null;
+
+  // Helper function to get authenticated headers
+  private static async getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json"
+    };
+    
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
 
 
   static async mapChatMessagesToCompletionMessages(modelId: string, messages: ChatMessage[]): Promise<ChatCompletionMessage[]> {
@@ -64,11 +82,8 @@ export class ChatService {
 
 
   static async sendMessage(messages: ChatMessage[], modelId: string): Promise<ChatCompletion> {
-    let endpoint = CHAT_COMPLETIONS_ENDPOINT;
-    let headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`
-    };
+    let endpoint = CHAT_API_ENDPOINT;
+    let headers = await this.getAuthHeaders();
 
     const mappedMessages = await ChatService.mapChatMessagesToCompletionMessages(modelId,messages);
 
@@ -84,7 +99,7 @@ export class ChatService {
 
     if (!response.ok) {
       const err = await response.json();
-      throw new CustomError(err.error.message, err);
+      throw new CustomError(err.error || 'API Error', err);
     }
 
     return await response.json();
@@ -117,11 +132,8 @@ export class ChatService {
   static async sendMessageStreamed(chatSettings: ChatSettings, messages: ChatMessage[], callback: (content: string,fileDataRef: FileDataRef[]) => void): Promise<any> {
     const debouncedCallback = this.debounceCallback(callback);
     this.abortController = new AbortController();
-    let endpoint = CHAT_COMPLETIONS_ENDPOINT;
-    let headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`
-    };
+    let endpoint = CHAT_API_ENDPOINT;
+    let headers = await this.getAuthHeaders();
 
     const requestBody: ChatCompletionRequest = {
       model: DEFAULT_MODEL,
@@ -213,13 +225,13 @@ export class ChatService {
             return o;
           }).filter(Boolean); // Filter out undefined values which may be a result of the [DONE] term check
 
-          let accumulatedContet = '';
+          let accumulatedContent = '';
           chunks.forEach(chunk => {
             chunk.choices.forEach(choice => {
               if (choice.delta && choice.delta.content) {  // Check if delta and content exist
                 const content = choice.delta.content;
                 try {
-                  accumulatedContet += content;
+                  accumulatedContent += content;
                 } catch (err) {
                   if (err instanceof Error) {
                     console.error(err.message);
@@ -231,7 +243,7 @@ export class ChatService {
               }
             });
           });
-          debouncedCallback(accumulatedContet);
+          debouncedCallback(accumulatedContent);
 
           if (DONE) {
             return;
@@ -293,19 +305,20 @@ export class ChatService {
   }
 
 
-  static fetchModels = (): Promise<OpenAIModel[]> => {
+  static fetchModels = async (): Promise<OpenAIModel[]> => {
     if (this.models !== null) {
       return Promise.resolve(this.models);
     }
-    this.models = fetch(MODELS_ENDPOINT, {
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
+    
+    const headers = await this.getAuthHeaders();
+    
+    this.models = fetch(MODELS_API_ENDPOINT, {
+      headers: headers
     })
         .then(response => {
           if (!response.ok) {
             return response.json().then(err => {
-              throw new Error(err.error.message);
+              throw new Error(err.error || 'Failed to fetch models');
             });
           }
           return response.json();

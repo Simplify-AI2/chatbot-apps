@@ -1,22 +1,52 @@
-# OpenAI React Chat Web Application
-<!-- markdown-link-check-disable -->
-This project provides a web frontend for the OpenAI chat API. This project is for developers or advanced users that are familiar with [OpenAI ChatGPT](https://chat.openai.com/) but want to customize the web interface.
-## Goals
-* Provide the same features as [OpenAI ChatGPT](https://chat.openai.com/) and <!-- markdown-link-check-enable -->
-[OpenAI Playground](https://platform.openai.com/playground?mode=chat).
-* Use a modern web stack of React, Tailwind CSS, and Typescript.
+# 🚀 SimplifyAI Chatbot
 
-See [FEATURES.md](FEATURES.md) for details.
+A powerful, secure, and modern chatbot application with React frontend and Express.js backend.
 
-## Preview
+## 📋 Prerequisites
 
-![openai-react-chat-0812-demo](https://github.com/user-attachments/assets/4140d46c-cff2-481b-b606-d2ce869209f3)
+- Node.js 18+ 
+- npm or yarn
+- Docker (optional)
 
+## 🏃‍♂️ Quick Start
 
+### Option 1: Development Mode (Recommended)
 
+```bash
+# 1. Install all dependencies (frontend + backend)
+npm run install:all
 
+# 2. Start both frontend and backend
+npm start
+```
 
-## Requirements
+That's it! 🎉
+
+- **Frontend**: http://localhost:5173
+- **Backend**: http://localhost:3001
+- **Health Check**: http://localhost:3001/health
+
+### Option 2: Docker Mode
+
+```bash
+# Build and run with Docker
+npm run docker:dev
+```
+
+- **Frontend**: http://localhost:80
+- **Backend**: http://localhost:3001
+
+## 🔧 Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start both frontend and backend in development mode |
+| `npm run dev` | Same as `npm start` |
+| `npm run install:all` | Install dependencies for both frontend and backend |
+| `npm run build` | Build both frontend and backend for production |
+| `npm run docker:dev` | Build and run with Docker Compose |
+| `npm run docker:build` | Build Docker images |
+| `npm run docker:up` | Run existing Docker images |
 
 * [Node.JS](https://nodejs.dev/en/)
 * [npm](https://www.npmjs.com/)
