@@ -12,10 +12,18 @@ Both services are containerized and can be deployed independently.
 
 ## 🐳 Docker Images
 
-The CI/CD pipeline builds and pushes two Docker images:
+The CI/CD pipeline builds and pushes Docker images with multiple tags:
 
-- `ghcr.io/your-username/your-repo-backend:latest`
-- `ghcr.io/your-username/your-repo-frontend:latest`
+**Frontend:**
+- `ghcr.io/your-username/your-repo-frontend:latest` (always points to the most recent build)
+- `ghcr.io/your-username/your-repo-frontend:main` (main branch builds)
+- `ghcr.io/your-username/your-repo-frontend:develop` (develop branch builds)
+- `ghcr.io/your-username/your-repo-frontend:[sha]` (specific commit builds)
+
+**Backend:**
+- `ghcr.io/your-username/your-repo-backend:main` (main branch builds)
+- `ghcr.io/your-username/your-repo-backend:develop` (develop branch builds)
+- `ghcr.io/your-username/your-repo-backend:[sha]` (specific commit builds)
 
 ## 🌟 Coolify Deployment
 
@@ -52,7 +60,7 @@ COOLIFY_TOKEN=your-coolify-api-token
 2. **Choose "Docker Image"**
 3. **Configure**:
    - **Name**: `chatbot-backend`
-   - **Image**: `ghcr.io/your-username/your-repo-backend:latest`
+   - **Image**: `ghcr.io/your-username/your-repo-backend:main` (or `:develop` for staging)
    - **Port**: `3001`
    - **Public**: `false` (internal service)
 
@@ -76,7 +84,7 @@ COOLIFY_TOKEN=your-coolify-api-token
 2. **Choose "Docker Image"**
 3. **Configure**:
    - **Name**: `chatbot-frontend`
-   - **Image**: `ghcr.io/your-username/your-repo-frontend:latest`
+   - **Image**: `ghcr.io/your-username/your-repo-frontend:latest` (always pulls the most recent build)
    - **Port**: `80`
    - **Public**: `true`
 
@@ -158,7 +166,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/your-username/your-repo-backend:latest
+        image: ghcr.io/your-username/your-repo-backend:main
         ports:
         - containerPort: 3001
         env:

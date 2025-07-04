@@ -124,6 +124,7 @@ jobs:
             VITE_ENABLE_TTS=true
             VITE_ENABLE_STT=true
           tags: |
+            ghcr.io/${{ env.REPO_NAME }}-frontend:latest
             ghcr.io/${{ env.REPO_NAME }}-frontend:${{ env.ENVIRONMENT }}
             ghcr.io/${{ env.REPO_NAME }}-frontend:${{ github.sha }}
 

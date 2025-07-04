@@ -36,7 +36,7 @@ In your GitHub repository settings, add these secrets:
 ### 1. Create Frontend Service
 
 **Service Type**: Docker Image
-**Image**: `ghcr.io/YOUR_USERNAME/YOUR_REPO-frontend:latest`
+**Image**: `ghcr.io/YOUR_USERNAME/YOUR_REPO-frontend:latest` (or `:main`/`:develop` for specific branches)
 **Port**: 80
 
 **Environment Variables**:
@@ -57,7 +57,7 @@ VITE_ENABLE_STT=true
 ### 2. Create Backend Service
 
 **Service Type**: Docker Image
-**Image**: `ghcr.io/YOUR_USERNAME/YOUR_REPO-backend:latest`
+**Image**: `ghcr.io/YOUR_USERNAME/YOUR_REPO-backend:main` (or `:develop` for staging)
 **Port**: 3001
 
 **Environment Variables**:
