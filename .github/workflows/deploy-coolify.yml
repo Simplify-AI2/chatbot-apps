@@ -57,6 +57,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase repository name
+        run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Check for Backend Changes
         id: backend_changes
         run: |
@@ -84,8 +87,8 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           tags: |
-            ghcr.io/${{ github.repository }}-backend:latest
-            ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
+            ghcr.io/${{ env.REPO_NAME }}-backend:latest
+            ghcr.io/${{ env.REPO_NAME }}-backend:${{ github.sha }}
 
       - name: Build & push Frontend
         if: ${{ steps.frontend_changes.outputs.changed == 'true' }}
@@ -100,8 +103,8 @@ jobs:
             VITE_ENABLE_TTS=true
             VITE_ENABLE_STT=true
           tags: |
-            ghcr.io/${{ github.repository }}-frontend:latest
-            ghcr.io/${{ github.repository }}-frontend:${{ github.sha }}
+            ghcr.io/${{ env.REPO_NAME }}-frontend:latest
+            ghcr.io/${{ env.REPO_NAME }}-frontend:${{ github.sha }}
 
       - name: Move cache
         run: |
