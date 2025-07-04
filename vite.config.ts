@@ -8,7 +8,7 @@ export default defineConfig({
     plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
     server: {
         open: true,
-        port: 3000,
+        port: parseInt(process.env.PORT || '5173'),
     },
     build: {
         chunkSizeWarningLimit: 2000, // in kilobytes

@@ -10,6 +10,11 @@ export async function isAuthenticated() {
   return !!data.user;
 }
 
+export async function getAuthToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token || null;
+}
+
 export async function logout() {
   await supabase.auth.signOut();
 }

@@ -1,18 +1,33 @@
 import {OpenAIModel} from "../models/model";
-import {OPENAI_API_KEY} from "../config";
 import {CustomError} from "./CustomError";
-import {MODELS_ENDPOINT, TTS_ENDPOINT} from "../constants/apiEndpoints";
-import {SpeechSettings} from "../models/SpeechSettings"; // Adjust the path as necessary
+import {SpeechSettings} from "../models/SpeechSettings";
+import { getAuthToken } from "../auth";
+
+// Backend API endpoints
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const TTS_API_ENDPOINT = `${API_BASE_URL}/api/tts`;
+const MODELS_API_ENDPOINT = `${API_BASE_URL}/api/models`;
 
 export class SpeechService {
   private static models: Promise<OpenAIModel[]> | null = null;
 
-  static async textToSpeech(text: string, settings: SpeechSettings): Promise<string> {
-    const endpoint = TTS_ENDPOINT;
-    const headers = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`,
+  // Helper function to get authenticated headers
+  private static async getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await getAuthToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json"
     };
+    
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
+  static async textToSpeech(text: string, settings: SpeechSettings): Promise<string> {
+    const endpoint = TTS_API_ENDPOINT;
+    const headers = await this.getAuthHeaders();
 
     if (text.length > 4096) {
       throw new Error("Input text exceeds the maximum length of 4096 characters.");
@@ -25,7 +40,7 @@ export class SpeechService {
     const requestBody = {
       model: settings.id,
       voice: settings.voice,
-      input: text,
+      text: text,
       speed: settings.speed,
       response_format: "mp3",
     };
@@ -55,10 +70,10 @@ export class SpeechService {
     }
 
     try {
-      const response = await fetch(MODELS_ENDPOINT, {
-        headers: {
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        },
+      const headers = await this.getAuthHeaders();
+      
+      const response = await fetch(MODELS_API_ENDPOINT, {
+        headers: headers,
       });
 
       if (!response.ok) {
