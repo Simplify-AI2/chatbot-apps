@@ -28,7 +28,6 @@ local.env.json
 
 # env
 .env
-.env.*
 env.json
 /src/env.json
 /src/local.env.json
