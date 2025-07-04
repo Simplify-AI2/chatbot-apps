@@ -30,7 +30,9 @@ if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your-supabase-url' && sup
 // Update CORS configuration to allow multiple origins
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost'
+  'http://localhost',
+  'https://chatbot.simplifygenai.id',
+  'https://dev.chatbot.simplifygenai.id'
 ];
 
 app.use(cors({
