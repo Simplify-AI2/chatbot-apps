@@ -106,27 +106,97 @@ VITE_ENABLE_STT=true
 - `POST /api/tts` - Text-to-Speech (requires `ENABLE_TTS=true`)
 - `POST /api/stt` - Speech-to-Text (requires `ENABLE_STT=true`)
 
-* [Node.JS](https://nodejs.dev/en/)
-* [npm](https://www.npmjs.com/)
-* [OpenAI API Account](https://openai.com/blog/openai-api)
-  * Note: GPT-4 API access is currently accessible to those who have made at least [one successful payment](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4) through the OpenAI developer platform.
+## 🌍 Environment Variables
 
+### Required Setup
 
-## Setup
+1. **Copy environment files:**
+   ```bash
+   cp .env.example .env
+   cp backend/.env.example backend/.env
+   ```
 
-1. Clone the repository.
+2. **Configure your keys:**
+   - `OPENAI_API_KEY` - Your OpenAI API key
+   - `VITE_SUPABASE_URL` - Your Supabase project URL
+   - `VITE_SUPABASE_ANON_KEY` - Your Supabase anon key
+
+### Environment Files Structure
+
+**Root `.env`** (Frontend build-time):
+```bash
+VITE_API_BASE_URL=http://localhost:3001
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_ENABLE_TTS=true
+VITE_ENABLE_STT=true
 ```
-git clone https://github.com/elebitzero/openai-react-chat.git
-```
-2. Copy [env.json](src/env.json)  to `local.env.json` and change 'your-api-key-here' to your [OpenAI Key](https://platform.openai.com/account/api-keys)
-3. Build & Run the web server
-```
-npm install
-npm run start
-```
-<!-- markdown-link-check-disable-next-line -->
-The local website [http://localhost:3000/](http://localhost:3000/) should open in your browser.
 
-## Contributions
+**`backend/.env`** (Backend runtime):
+```bash
+OPENAI_API_KEY=your-openai-api-key
+NODE_ENV=development
+PORT=3001
+CORS_ORIGIN=*
+ENABLE_TTS=true
+ENABLE_STT=true
+```
 
-All contributions are welcome. Feel free to open an issue or create a pull request.
+## 🚀 Deployment
+
+### Docker Compose (Local Production)
+
+```bash
+# Build and run production containers
+docker-compose up --build
+
+# Run in background
+docker-compose up -d
+```
+
+### Coolify (Cloud Deployment)
+
+This project is configured for automated deployment to [Coolify](https://coolify.io/) using GitHub Actions.
+
+📖 **[Complete Coolify Setup Guide](docs/COOLIFY_SETUP.md)**
+
+**Quick Overview:**
+1. **Setup GitHub Secrets** (only webhook URL needed)
+2. **Configure Coolify Services** with proper environment variables  
+3. **Push to main branch** - automatic deployment via GitHub Actions
+
+**Key Benefits:**
+- ✅ Secure secret management in Coolify (not in GitHub)
+- ✅ Automated CI/CD with GitHub Actions
+- ✅ Separate frontend and backend containers
+- ✅ Production-ready with health checks
+- ✅ Easy rollback and monitoring
+
+### Manual Deployment
+
+For manual deployment or other platforms, see:
+- **[General Setup Guide](docs/SETUP.md)**
+- **[Supabase Auth Setup](docs/SUPABASE_AUTH.md)**
+- **[Deployment Guide](docs/DEPLOYMENT.md)**
+
+## 📝 Requirements
+
+- **Node.js 18+**
+- **npm** or **yarn**
+- **Docker** (for containerized deployment)
+- **OpenAI API Key** ([Get one here](https://platform.openai.com/account/api-keys))
+- **Supabase Account** ([Create one here](https://supabase.com/))
+
+## 🤝 Contributing
+
+All contributions are welcome! Feel free to:
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

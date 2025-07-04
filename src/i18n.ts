@@ -9,6 +9,9 @@ i18n
     .use(LanguageDetector)
     .init({
       fallbackLng: 'en',
+      load: 'languageOnly',
+      supportedLngs: ['cs','de','el','en','es','fr','hi','id','it','ja','ko','pl','ru','sv','th','vi','zh-CN'],
+      nonExplicitSupportedLngs: true,
       detection: {
         order: ['navigator', 'querystring', 'cookie', 'localStorage', 'htmlTag', 'path'],
       },
