@@ -128,9 +128,12 @@ jobs:
             ghcr.io/${{ env.REPO_NAME }}-frontend:${{ github.sha }}
 
       - name: Move cache
+        if: ${{ steps.backend_changes.outputs.changed == 'true' || steps.frontend_changes.outputs.changed == 'true' }}
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          if [ -d "/tmp/.buildx-cache-new" ]; then
+            rm -rf /tmp/.buildx-cache
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi
 
   deploy:
     name: Deploy to Coolify
