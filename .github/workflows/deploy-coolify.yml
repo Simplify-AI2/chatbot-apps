@@ -3,9 +3,18 @@ name: Build & Deploy to Coolify
 on:
   push:
     branches:
-      - main
+      - main     # Production deployment
+      - develop  # Development deployment  
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - development
       force_deploy:
         description: 'Force deploy both frontend and backend'
         required: false
@@ -60,6 +69,16 @@ jobs:
       - name: Set lowercase repository name
         run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
+      - name: Set environment variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+            echo "API_BASE_URL=https://api.chatbot.simplifygenai.id" >> $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=development" >> $GITHUB_ENV
+            echo "API_BASE_URL=https://dev-api.chatbot.simplifygenai.id" >> $GITHUB_ENV
+          fi
+
       - name: Check for Backend Changes
         id: backend_changes
         run: |
@@ -99,13 +118,13 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
-            VITE_API_BASE_URL=http://localhost:3001
+            VITE_API_BASE_URL=${{ env.API_BASE_URL }}
             VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
             VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}
             VITE_ENABLE_TTS=true
             VITE_ENABLE_STT=true
           tags: |
-            ghcr.io/${{ env.REPO_NAME }}-frontend:latest
+            ghcr.io/${{ env.REPO_NAME }}-frontend:${{ env.ENVIRONMENT }}
             ghcr.io/${{ env.REPO_NAME }}-frontend:${{ github.sha }}
 
       - name: Move cache
