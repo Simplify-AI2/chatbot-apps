@@ -73,10 +73,10 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
             echo "ENVIRONMENT=production" >> $GITHUB_ENV
-            echo "API_BASE_URL=https://api.chatbot.simplifygenai.id" >> $GITHUB_ENV
+            echo "API_BASE_URL=${{ secrets.PROD_API_BASE_URL || 'http://localhost:3001' }}" >> $GITHUB_ENV
           else
             echo "ENVIRONMENT=development" >> $GITHUB_ENV
-            echo "API_BASE_URL=https://dev-api.chatbot.simplifygenai.id" >> $GITHUB_ENV
+            echo "API_BASE_URL=${{ secrets.DEV_API_BASE_URL || 'http://localhost:3001' }}" >> $GITHUB_ENV
           fi
 
       - name: Check for Backend Changes
